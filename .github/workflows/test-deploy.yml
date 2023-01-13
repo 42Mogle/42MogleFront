@@ -55,6 +55,3 @@ jobs:
           PROFILE: ${{ secrets.AWS_PROFILE }}
         run:
           aws s3 sync ./build ${{ secrets.AWS_TEST_BUCKET_NAME }} --region ${{ secrets.AWS_DEFAULT_REGION }}
-      - name: Invalidate cache CloudFront
-        run:
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION }} --region ${{ secrets.AWS_DEFAULT_REGION }} --paths '/index.html'
