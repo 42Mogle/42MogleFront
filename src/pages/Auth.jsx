@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Typography } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import useStore from "../store.js";
+import jwt_decode from "jwt-decode";
 const HTTP_STATUS = require("http-status");
 
 const Auth = () => {
@@ -22,9 +23,10 @@ const Auth = () => {
               `/serverAuth/42oauth/jwt/?code=${token}`
             );
             if (response.status === HTTP_STATUS.OK) {
-              setIntraId(response.data.intraId);
-              localStorage.setItem("accessToken", response.data.accessToken);
-              navigate("/reset-password", { state: response.data });
+              const decodedToken = jwt_decode(response.data);
+              setIntraId(decodedToken.intraId);
+              localStorage.setItem("accessToken", response.data);
+              navigate("/reset-password");
             }
           } catch (error) {
             console.log(error.response);

@@ -84,15 +84,13 @@ function Signup() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = {
-      intraId: state.intraId,
-      password: secondPassword,
-    };
     if (_isClickedPasswordReset === true) {
       try {
-        const response = await apiManager.post(`/serverAuth/secondJoin/`, data);
-        // TODO: HTTP STATUS 코드 확인하기
-        if (response.status === HTTP_STATUS.CREATED) {
+        const data = {
+          password: secondPassword,
+        };
+        const response = await apiManager.patch(`/user/password/`, data);
+        if (response.status === HTTP_STATUS.OK) {
           navigate("/");
         }
       } catch (error) {
@@ -100,6 +98,10 @@ function Signup() {
       }
     } else {
       try {
+        const data = {
+          intraId: state.intraId,
+          password: secondPassword,
+        };
         const response = await apiManager.post(`/serverAuth/secondJoin/`, data);
         if (response.status === HTTP_STATUS.CREATED) {
           setPhotoUrl(state.photoUrl);
