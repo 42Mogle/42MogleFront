@@ -1,0 +1,60 @@
+# develop-deploy.yml
+
+name: Deploy deploy/test branch
+
+on:
+  push:
+    branches:
+      - deploy/test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Generate Environment Variables File for Production
+        run: |
+          echo "PUBLIC_URL=$PUBLIC_URL" >> .env
+          echo "REACT_APP_AWS_TEST_BACKEND_SERVER=$REACT_APP_AWS_TEST_BACKEND_SERVER" >> .env
+          echo "REACT_APP_OAUTH_URL=$REACT_APP_OAUTH_URL" >> .env
+        env:
+          PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
+          REACT_APP_AWS_TEST_BACKEND_SERVER: ${{ secrets.REACT_APP_AWS_TEST_BACKEND_SERVER }}
+          REACT_APP_OAUTH_URL: ${{ secrets.REACT_APP_OAUTH_URL }}
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+        env:
+          CI: ''
+
+      - name: Deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PROFILE: ${{ secrets.AWS_PROFILE }}
+        run:
+          aws s3 sync ./build ${{ secrets.AWS_TEST_BUCKET_NAME }} --region ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Invalidate cache CloudFront
+        run:
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION }} --region ${{ secrets.AWS_DEFAULT_REGION }} --paths '/index.html'
