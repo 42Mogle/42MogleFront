@@ -32,11 +32,11 @@ jobs:
 
       - name: Generate Environment Variables File for Production
         run: |
-          echo "PUBLIC_URL=$PUBLIC_URL" >> .env
+          echo "TEST_PUBLIC_URL=$TEST_PUBLIC_URL" >> .env
           echo "REACT_APP_AWS_TEST_BACKEND_SERVER=$REACT_APP_AWS_TEST_BACKEND_SERVER" >> .env
           echo "REACT_APP_OAUTH_URL=$REACT_APP_OAUTH_URL" >> .env
         env:
-          PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
+          TEST_PUBLIC_URL: ${{ secrets.TEST_PUBLIC_URL }}
           REACT_APP_AWS_TEST_BACKEND_SERVER: ${{ secrets.REACT_APP_AWS_TEST_BACKEND_SERVER }}
           REACT_APP_OAUTH_URL: ${{ secrets.REACT_APP_OAUTH_URL }}
 
