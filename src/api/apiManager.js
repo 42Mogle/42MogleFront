@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiManager = axios.create({
-  baseURL: `https://${process.env.REACT_APP_AWS_BACKEND_SERVER}`,
+  baseURL: `https://${process.env.REACT_APP_AWS_TEST_BACKEND_SERVER}`,
 });
 
 apiManager.interceptors.request.use(
